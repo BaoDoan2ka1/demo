@@ -1,0 +1,171 @@
+<p-dialog
+    (onHide)="handleCloseDialog()"
+    [(visible)]="visible"
+    [draggable]="false"
+    [modal]="true"
+    [resizable]="false"
+    [style]="{ width: '700px' }">
+
+    <ng-template pTemplate="header">
+        <h4 class="m-0">
+            @if (stateForm === EStateForm.NORMAL) {
+                Search Application User
+            } @else {
+                @if (!stateExistDataUser.dataUser) {
+                    Add New User
+                } @else {
+                    Edit User
+                }
+            }
+        </h4>
+    </ng-template>
+
+    <div class="flex-column gap-3">
+        @if (stateForm === EStateForm.NORMAL) {
+            <form (ngSubmit)="handleCheckExistUser()" [formGroup]="formExistUser">
+                <div class="flex flex-column gap-2">
+                    <label class="font-bold" for="email"> Email </label>
+                    <input
+                        [class.ng-invalid]="formExistUser.get('email')?.touched && formExistUser.get('email')?.dirty && formExistUser.get('email')?.invalid"
+                        aria-describedby="email-help"
+                        formControlName="email"
+                        id="email"
+                        pInputText
+                        placeholder="Enter place email"
+                    />
+                    @if (formExistUser.get('email')?.touched && formExistUser.get('email')?.dirty && formExistUser.get('email')?.invalid) {
+                        @if (formExistUser.get('email').hasError('required')) {
+                            <small class="text-red-500 font-italic">
+                                This field is required please enter email
+                            </small>
+                        } @else if (formExistUser.get('email').hasError('email')) {
+                            <small class="text-red-500 font-italic">
+                                This field must be email
+                            </small>
+                        }
+                    }
+                </div>
+
+                @if (stateExistDataUser.isAddNewUser && formExistUser.get('email')?.valid) {
+                    <small class="text-red-400">
+                        The user whose email above does not exist yet
+                    </small>
+                }
+
+                <div class="flex justify-content-between align-items-center">
+                    @if (stateExistDataUser.isAddNewUser && formExistUser.get('email')?.valid) {
+                        <p-button (click)="onAddNewUser()" label="Add new user"></p-button>
+                    } @else {
+                        <div></div>
+                    }
+
+                    <div class="flex justify-content-end gap-2 mt-3">
+                        <p-button
+                            [disabled]="stateExistDataUser.loading"
+                            severity="secondary" [outlined]="true" (click)="handleCloseDialog()"
+                            label="Cancel"></p-button>
+                        <p-button
+                            [loading]="stateExistDataUser.loading"
+                            [disabled]="stateExistDataUser.loading"
+                            label="Confirm" type="submit"></p-button>
+                    </div>
+                </div>
+            </form>
+        } @else {
+            <form (ngSubmit)="onSubmit()" [formGroup]="formGroupUser">
+                <div class="flex flex-column gap-3">
+                    <div class="flex flex-column gap-2">
+                        <label class="font-bold" for="email"> Email </label>
+                        <input
+                            [class.ng-invalid]="getIsFieldInvalid('email')"
+                            aria-describedby="email-help"
+                            formControlName="email"
+                            pInputText
+                            placeholder="Enter place email"
+                        />
+                        @if (getIsFieldInvalid('email')) {
+                            <small class="text-red-500 font-italic" id="email-help">
+                                This field is required please enter email
+                            </small>
+                        }
+                    </div>
+                    <div class="flex flex-column gap-2">
+                        <label class="font-bold" for="first_name"> First Name </label>
+                        <input
+                            [class.ng-invalid]="getIsFieldInvalid('first_name')"
+                            aria-describedby="first_name-help"
+                            formControlName="first_name"
+                            id="first_name"
+                            pInputText
+                            placeholder="Enter your first name"
+                        />
+                        @if (getIsFieldInvalid('first_name')) {
+                            <small class="text-red-500 font-italic" id="first-name-help">
+                                This field is required please enter first name
+                            </small>
+                        }
+                    </div>
+                    <div class="flex flex-column gap-2">
+                        <label class="font-bold" for="last_name"> Last Name </label>
+                        <input
+                            [class.ng-invalid]="getIsFieldInvalid('last_name')"
+                            aria-describedby="last_name-help"
+                            formControlName="last_name"
+                            id="last_name"
+                            pInputText
+                            placeholder="Enter your last name"
+                        />
+                        @if (getIsFieldInvalid('last_name')) {
+                            <small class="text-red-500 font-italic" id="last_name-help">
+                                This field is required please enter last name
+                            </small>
+                        }
+                    </div>
+                    <div class="flex flex-column gap-2">
+                        <label class="font-bold" for="first_name"> Phone number </label>
+                        <input
+                            [class.ng-invalid]="getIsFieldInvalid('phone')"
+                            aria-describedby="phone-help"
+                            formControlName="phone"
+                            id="phone"
+                            pInputText
+                            placeholder="Enter your phone number"
+                        />
+                        @if (getIsFieldInvalid('phone')) {
+                            <small class="text-red-500 font-italic" id="phone-help">
+                                This field is required please enter phone number
+                            </small>
+                        }
+                    </div>
+
+                    <div class="flex gap-2">
+                        <p-checkbox formControlName="owner" value="true" label="Owner" [binary]="true"
+                                    inputId="owner"></p-checkbox>
+                    </div>
+
+                    <div class="flex flex-column gap-2">
+                        <label class="font-bold" for="first_name"> Roles </label>
+
+                        <div class="flex align-items-center gap-2">
+                            <div *ngFor="let role of roles; let i = index">
+                                <div class="flex align-items-center">
+                                    <p-checkbox
+                                        [formControl]="formGroupUser.get('roles')"
+                                        [label]="role"
+                                        [value]="role">
+                                    </p-checkbox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-content-end gap-2 mt-3">
+                    <p-button [outlined]="true" severity="secondary" (click)="visibleChange.emit(false)"
+                              label="Cancel"></p-button>
+                    <p-button label="Confirm" type="submit"></p-button>
+                </div>
+            </form>
+        }
+    </div>
+</p-dialog>
